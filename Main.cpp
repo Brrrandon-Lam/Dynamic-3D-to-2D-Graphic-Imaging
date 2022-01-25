@@ -5,6 +5,7 @@
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
+#include <vector>
 
 #include"Texture.h"
 #include"shaderClass.h"
@@ -13,7 +14,10 @@
 #include"EBO.h"
 #include"Camera.h"
 
-
+//Function Declaration
+GLfloat FindLargestZ();
+void Generate2DShape(GLfloat LargestZ);
+void ProcessVertices();
 
 const unsigned int width = 1600;
 const unsigned int height = 900;
@@ -44,6 +48,9 @@ GLfloat vertices[] =
 	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
 	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
 };
+
+//create a dynamic container for our 2d representation.
+std::vector<GLfloat> vertices_2d;
 
 // Indices for vertices order
 GLuint indices[] =
@@ -84,7 +91,6 @@ GLuint lightIndices[] =
 	4, 6, 7
 };
 
-
 int main()
 {
 	// Initialize GLFW
@@ -116,7 +122,10 @@ int main()
 	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
 	glViewport(0, 0, width, height);
 
-
+	//Find the greatest Z value in the list of vertices.
+	GLfloat LargestZ = FindLargestZ();
+	std::cout << "The largest z value in the list of vertices is: " << LargestZ << std::endl;
+	Generate2DShape(LargestZ);
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
@@ -128,14 +137,25 @@ int main()
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO1(indices, sizeof(indices));
 	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
+	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
+	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+
 	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
 	VBO1.Unbind();
 	EBO1.Unbind();
+
+	VAO VAO2;
+	VAO2.Bind();
+	VBO VBO2(vertices_2d, vertices_2d.size());
+	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
+	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
+	VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
+	VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+	VAO2.Unbind();
+	VBO2.Unbind();
 
 
 	// Shader for light cube
@@ -191,6 +211,7 @@ int main()
 	{
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glDrawBuffer(GL_BACK);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -213,6 +234,8 @@ int main()
 		// Draw primitives, number of indices, datatype of indices, index of indices
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
+		//VAO2.Bind();
+		//glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices_2d.size()));
 
 
 		// Tells OpenGL which Shader Program we want to use
@@ -248,4 +271,119 @@ int main()
 	// Terminate GLFW before ending the program
 	glfwTerminate();
 	return 0;
+}
+
+GLfloat FindLargestZ() 
+{
+	int counter = 0;
+	GLfloat largest = -100.f;
+	for (auto x : vertices) {
+		std::cout << x << " ";
+		if (counter == 2 && largest < x) { //If we are at the z coordinate then compare against largest.
+			largest = x;
+			std::cout << "The current highest z value is: " << largest << std::endl;
+		}
+		++counter;
+		if (counter == 11) {
+			std::cout << std::endl;
+			counter = 0;
+		}
+		continue;
+	}
+	return largest;
+}
+
+void Generate2DShape(GLfloat LargestZ)
+{
+	//each row of the array has 11 elements
+	// (x, y, z) (r, g, b), (s, t), (xnorm, ynorm, znorm)
+	int counter = 0;
+	int vertexCount = 0;
+
+	//This function does some stuff oh god
+	ProcessVertices();
+	for (auto x : vertices_2d) {
+		//
+	}
+}
+	
+//This function will process the vertices and only return the frontmost unique ones.
+
+void ProcessVertices()
+{
+	std::cout << "Processing Vertices\n\n\n\n";
+	//For storing the current vertex coordinates.
+	GLfloat currentVertexCoordinates[4] = {};
+	std::vector<GLfloat> vertices_mutable{};
+	//Get the size of the array
+	int size = static_cast<int>(sizeof(vertices) / sizeof(GLfloat));
+
+	//create a vector that we can modify to not destroy the 3D object.
+	for (auto x : vertices) {
+		vertices_mutable.push_back(x);
+	}
+
+	int counter = 0;
+	int loopCount = 0;
+	//maintains a list of rows to erase.
+	//go up to the coordinates before the last.
+	//fix iteration ( no hardcode) 
+	for (int i = 0; i < vertices_mutable.size(); i += 11) { //iterate through our vector and grab the vertex coordinates.
+		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
+		currentVertexCoordinates[1] = vertices_mutable[i+1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i+2]; //store z
+		currentVertexCoordinates[3] = i; //store its position.
+		bool found = false;
+		//debug line
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl;
+		
+		for (int j = 0; j < vertices_mutable.size(); j += 11) { //iterate through our vector
+			//check x y and that it is not itself.
+			if (currentVertexCoordinates[0] == vertices_mutable.at(j) && currentVertexCoordinates[1] == vertices_mutable.at(j + 1) && j != currentVertexCoordinates[3]) {
+				//If the current is greater, flag the other for erase.
+				if (float(currentVertexCoordinates[2]) >= float(vertices_mutable.at(j + 2))) {
+					std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl;
+					std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//erase elements j thru j + 10
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + 11);
+					//if we erase a point behind the current position, we need to update the location of the current position
+					if (j < currentVertexCoordinates[3]) {
+						currentVertexCoordinates[3] -= 11;
+					}
+				}
+				//else, remove the current
+				else {
+					std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl;
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + 11);
+				}
+				//if found, we need to check the vertices again because the positions have shifted.
+				j = 0;
+			}
+		}
+		std::cout << "\n\n Vertices remaining at this iteration \n\n";
+		std::cout << "Size of the array is: " << vertices_mutable.size() << std::endl;
+		for (auto x : vertices_mutable) {
+			std::cout << x << " ";
+			++counter;
+			if (counter == 11) {
+				counter = 0;
+				std::cout << std::endl;
+			}
+		}
+		//check xyz against all other xyz
+		//if match, take the max of z
+		//if no match, push to vector.
+		
+	}
+	std::cout << "\n\n The final list of vertices is: " << std::endl;
+	int help = 0;
+	for (auto x : vertices_mutable) {
+		vertices_2d.push_back(x);
+		std::cout << x << " ";
+		++help;
+		if (help == 11) {
+			help = 0;
+			std::cout << std::endl;
+		}
+	}
 }
