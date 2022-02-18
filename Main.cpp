@@ -13,6 +13,7 @@
 #include"VBO.h"
 #include"EBO.h"
 #include"Camera.h"
+#include "ObjLoader.h"
 
 //Function Declaration
 GLfloat FindLargestZ();
@@ -129,6 +130,9 @@ int main()
 	GLfloat LargestZ = FindLargestZ();
 	std::cout << "The largest z value in the list of vertices is: " << LargestZ << std::endl;
 	Generate2DShape(LargestZ);
+
+	char testName[] = "Giraffe.obj";
+	GLfloat* testObj = LoadObjFile(testName);
 
 	//Allocate space for an array
 	GLfloat vertices_2d_array[33];
