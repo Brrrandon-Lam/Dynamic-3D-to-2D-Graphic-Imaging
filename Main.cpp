@@ -26,10 +26,11 @@ const unsigned int vertexDataSize = 11;
 bool draw_3d = true;
 bool axis_align = true;
 
-
+GLfloat* vertices;
+GLuint* indices;
 
 // Vertices coordinates
-GLfloat vertices[] =
+GLfloat vertices2[] =
 { //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
 	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
 	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
@@ -57,7 +58,7 @@ GLfloat vertices[] =
 std::vector<GLfloat> vertices_2d;
 
 // Indices for vertices order
-GLuint indices[] =
+GLuint indices2[] =
 {
 	0, 1, 2, // Bottom side
 	0, 2, 3, // Bottom side
@@ -132,15 +133,24 @@ int main()
 	Generate2DShape(LargestZ);
 
 	char testName[] = "Giraffe.obj";
-	GLfloat* testObj = LoadObjFile(testName);
+	vertices = LoadObjFile(testName);
+	int testNumIndicies = sizeof(vertices[0]) * sizeof(vertices);
+	indices = new GLuint[testNumIndicies];
+	for (int x = 0; x < testNumIndicies; x++) {
+		indices[x] = x;
+	}
+	printf("verts size: %d, inds size: %d\n", sizeof(vertices), sizeof(indices));
+
+
+
 
 	//Allocate space for an array
 	GLfloat vertices_2d_array[33];
 	GLuint indices_2d[3];
-	
+
 	//copy contents over
-	
-	for(int i = 0; i < vertices_2d.size(); i++) {
+
+	for (int i = 0; i < vertices_2d.size(); i++) {
 		vertices_2d_array[i] = vertices_2d[i];
 	}
 
@@ -161,7 +171,7 @@ int main()
 	// Generates Element Buffer Object and links it to indices
 	EBO EBO1(indices, sizeof(indices));
 	std::cout << "Created VAO with " << sizeof(vertices) << " vertices and " << sizeof(indices) << " indices." << std::endl;
-	
+
 	// Links VBO attributes such as coordinates and colors to VAO
 	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
 	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
@@ -177,7 +187,7 @@ int main()
 	VAO2.Bind();
 	VBO VBO2(vertices_2d_array, sizeof(vertices_2d_array));
 	EBO EBO2(indices_2d, sizeof(indices_2d));
-	
+
 	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
 	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
 	VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
@@ -218,7 +228,7 @@ int main()
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	shaderProgram.Activate();
-	
+
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
@@ -279,7 +289,7 @@ int main()
 		else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
 			VAO1.Bind();
 			glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-			VAO2.Bind(); 	
+			VAO2.Bind();
 			glDrawElements(GL_TRIANGLES, sizeof(indices_2d) / sizeof(int), GL_UNSIGNED_INT, 0);
 		}
 
@@ -321,11 +331,11 @@ int main()
 	return 0;
 }
 
-GLfloat FindLargestZ() 
+GLfloat FindLargestZ()
 {
 	int counter = 0;
 	GLfloat largest = -100.f;
-	for (auto x : vertices) {
+	/*for (auto x : vertices) {
 		std::cout << x << " ";
 		if (counter == 2 && largest < x) { //If we are at the z coordinate then compare against largest.
 			largest = x;
@@ -337,7 +347,7 @@ GLfloat FindLargestZ()
 			counter = 0;
 		}
 		continue;
-	}
+	}UNCOMMENT ME*/
 	return largest;
 }
 
@@ -353,7 +363,7 @@ void Generate2DShape(GLfloat LargestZ)
 		//
 	//}
 }
-	
+
 //This function will process the vertices and only return the frontmost unique ones.
 
 void ProcessVertices(std::string axis)
@@ -366,9 +376,9 @@ void ProcessVertices(std::string axis)
 	int size = static_cast<int>(sizeof(vertices) / sizeof(GLfloat));
 
 	//create a vector that we can modify to not destroy the 3D object.
-	for (auto x : vertices) {
+	/*for (auto x : vertices) {
 		vertices_mutable.push_back(x);
-	}
+	}UNCOMMENT ME */
 
 	int counter = 0;
 	int loopCount = 0;
@@ -377,13 +387,13 @@ void ProcessVertices(std::string axis)
 	//fix iteration ( no hardcode) 
 	for (int i = 0; i < vertices_mutable.size(); i += vertexDataSize) { //iterate through our vector and grab the vertex coordinates.
 		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
-		currentVertexCoordinates[1] = vertices_mutable[i+1]; //store y
-		currentVertexCoordinates[2] = vertices_mutable[i+2]; //store z
+		currentVertexCoordinates[1] = vertices_mutable[i + 1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i + 2]; //store z
 		currentVertexCoordinates[3] = i; //store its position.
 		bool found = false;
 		//debug line
 		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl;
-		
+
 		for (int j = 0; j < vertices_mutable.size(); j += vertexDataSize) { //iterate through our vector
 			//check x y and that it is not itself.
 			if (currentVertexCoordinates[0] == vertices_mutable.at(j) && currentVertexCoordinates[1] == vertices_mutable.at(j + 1) && j != currentVertexCoordinates[3]) {
@@ -420,7 +430,7 @@ void ProcessVertices(std::string axis)
 		//check xyz against all other xyz
 		//if match, take the max of z
 		//if no match, push to vector.
-		
+
 	}
 	std::cout << "\n\n The final list of vertices is: " << std::endl;
 	int help = 0;

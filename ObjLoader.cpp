@@ -340,10 +340,12 @@ LoadObjFile(char* name)
 	fprintf(stderr, "Obj file  span = (%8.3f,%8.3f,%8.3f)\n",
 		xmax - xmin, ymax - ymin, zmax - zmin);
 
-	GLfloat* toReturnInfo = new GLfloat[Vertices.size() + Normals.size() + TextureCoords.size()];
+	int testSizes = Vertices.size() + Normals.size() + TextureCoords.size();
+	GLfloat* toReturnInfo = new GLfloat[testSizes];
 	printf("OBJ LOADER sizes: %d, %d, %d\n", Vertices.size(), Normals.size(), TextureCoords.size());
+	printf("toReturn test sizes: %d\n", testSizes);
 	int spotInVertex = 0;
-	for (size_t i = 0; i < Vertices.size(); i += 11)
+	for (size_t i = 0; i < testSizes; i += 11)
 	{
 		toReturnInfo[i] = Vertices.at(spotInVertex).x;
 		toReturnInfo[i + 1] = Vertices.at(spotInVertex).y;
@@ -359,9 +361,29 @@ LoadObjFile(char* name)
 		toReturnInfo[i + 8] = Normals.at(spotInVertex).nx;
 		toReturnInfo[i + 9] = Normals.at(spotInVertex).ny;
 		toReturnInfo[i + 10] = Normals.at(spotInVertex).nz;
-	}
-	
 
+		spotInVertex++;
+		printf("%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n", 
+			i,
+			toReturnInfo[i],
+			toReturnInfo[i + 1],
+			toReturnInfo[i + 2],
+
+			toReturnInfo[i + 3],
+			toReturnInfo[i + 4],
+			toReturnInfo[i + 5],
+
+			toReturnInfo[i + 6],
+			toReturnInfo[i + 7],
+
+			toReturnInfo[i + 8],
+			toReturnInfo[i + 9],
+			toReturnInfo[i + 10]
+		);
+	}
+
+
+	printf("obj size of info: %d\n", sizeof(&toReturnInfo));
 	return toReturnInfo;
 }
 
