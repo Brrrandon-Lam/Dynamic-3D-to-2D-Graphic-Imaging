@@ -55,7 +55,7 @@ GLfloat vertices[] =
 	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
 	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
 	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
-
+	 5
 	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
 	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
 	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
@@ -116,7 +116,7 @@ int main()
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Create a GLFWwindow object of 800 by 800 pixels, naming it "YoutubeOpenGL"
+	// Create a GLFWwindow object of 1600 by 900 (width by height) pixels, naming it "OpenGL Tutorial"
 	GLFWwindow* window = glfwCreateWindow(width, height, "OpenGL Tutorial", NULL, NULL);
 	// Error check if the window fails to create
 	if (window == NULL)
@@ -130,41 +130,34 @@ int main()
 
 	//Load GLAD so it configures OpenGL
 	gladLoadGL();
+
 	// Specify the viewport of OpenGL in the Window
-	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
+	// In this case the viewport goes from x = 0, y = 0, to x = 1600, y = 900
 	glViewport(0, 0, width, height);
 
 	//Find the greatest or smallest value in the list of vertices.
-	//Debugging Lines
-	size_t verticesSize = sizeof(vertices) / sizeof(vertices[0]);
 
+	size_t verticesSize = sizeof(vertices) / sizeof(vertices[0]); //Calculates the size of the vertex data
+
+	//Each of these functions takes in a list of vertices, the size of the list of vertices, and the size of an independent vertex.
 	GLfloat xmax = MaxX(vertices, verticesSize, vertexDataSize);
-	std::cout << xmax << " is the maximum x value in the data \n\n\n";
+	std::cout << xmax << " is the maximum x value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat ymax = MaxY(vertices, verticesSize, vertexDataSize);
-	std::cout << ymax << " is the maximum y value in the data \n\n\n";
+	std::cout << ymax << " is the maximum y value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat zmax = MaxZ(vertices, verticesSize, vertexDataSize);
-	std::cout << zmax << " is the maximum z value in the data \n\n\n";
+	std::cout << zmax << " is the maximum z value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat xmin = MinX(vertices, verticesSize, vertexDataSize);
-	std::cout << xmin << " is the minimum x value in the data \n\n\n";
+	std::cout << xmin << " is the minimum x value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat ymin = MinY(vertices, verticesSize, vertexDataSize);
-	std::cout << ymin << " is the minimum y value in the data \n\n\n";
+	std::cout << ymin << " is the minimum y value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
-	std::cout << zmin << " is the minimum Z value in the data \n\n\n";
+	std::cout << zmin << " is the minimum Z value in the data \n\n\n"; // DEBUGGING LINE
 	
-
-	//GLfloat LargestX = FindLargestX(vertices, vertexDataSize);
-	//GLfloat SmallestX = FindSmallestX(vertices, vertexDataSize);
-
-	//GLfloat LargestY = FindLargestY(vertices, vertexDataSize);
-	//GLfloat SmallestY = FindSmallestY(vertices, vertexDataSize);
-
-	//std::cout << "\n\nThe largest and smallest X Y and Z values are: " << LargestZ << std::endl; //LargestX << " " << SmallestX << " " << LargestY << " " << SmallestY << " " << LargestZ << " " << SmallestZ << "\n\n" << std::endl;
-
 
 
 	Generate2DShape(zmax);
@@ -565,3 +558,38 @@ void ProcessVertices(std::string axis)
 		}
 	}
 }
+
+/*
+* Function Name: Process Vertices
+* Description: Takes in an axis (+z, -z, +x, -x, +y, -y), a boolean and a list of vertices. The axis indicates which axis to transform based on.
+*			   The boolean will determine whether or not the transformed object is flattened to that axis or not.
+*			   The list of vertices determines what vertices the transformation will be applied to.
+* Inputs: Axis, Alignment, Vertices
+* Output: 2D Vertices
+*/
+/*
+void ProcessVertices(std::string axis, bool axis_alignment, GLfloat vertexData[]) {
+	if (axis == "+x") {
+		//TransformPosX();
+	}
+	else if (axis == "-x") {
+		//TransformNegX();
+	}
+	else if (axis == "+y") {
+		//TransformPosY()
+	}
+	else if (axis == "-y") {
+		//TransformNegY()
+	}
+	else if (axis == "+z") {
+		//TransformPosZ()
+	}
+	else if (axis == "-z") {
+		//TransformNegZ()
+	}
+	else {
+		std::cout << "Invalid axis input, should be: +z +y +x -z -y -x" << std::endl;
+		exit(-1);
+	}
+}
+*/
