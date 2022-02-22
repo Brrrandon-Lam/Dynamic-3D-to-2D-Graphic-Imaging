@@ -15,12 +15,14 @@
 #include"Camera.h"
 
 //Function Declaration
-GLfloat FindLargestZ(); //return the largest Z value from vertex data.
-GLfloat FindSmallestZ(); //Return the smallest Z value from vertex data
-GLfloat FindLargestX(); //Return the largest X value from vertex data
-GLfloat FindSmallestX(); //Return the smallest X value from vertex data 
-GLfloat FindLargestY(); //Return the largest Y value from vertex data 
-GLfloat FindSmallestY(); //return the smallest Y value from vertex data
+//These function take in an array and return a specific value from the vertex data
+GLfloat MinX(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the minimum X value from vertex data 
+GLfloat MinY(GLfloat vertexData[], size_t verticesSize, int numComponents); //return the minimum Y value from vertex data
+GLfloat MinZ(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the minimum Z value from vertex data
+
+GLfloat MaxX(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the maximum X value from the vertex data
+GLfloat MaxY(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the maximum Y value from the vertex data
+GLfloat MaxZ(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the maximum Z value from the vertex data
 
 bool draw_3d = true;
 bool axis_align = true; //If you want to axis align the new set of vertices.
@@ -37,7 +39,7 @@ const unsigned int vertexDataSize = 11;
 // Vertices coordinates
 GLfloat vertices[] =
 { //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-	-0.6f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
 	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
 	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
 	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
@@ -133,20 +135,39 @@ int main()
 	glViewport(0, 0, width, height);
 
 	//Find the greatest or smallest value in the list of vertices.
-	GLfloat LargestZ = FindLargestZ();
-	GLfloat SmallestZ = FindSmallestZ();
+	//Debugging Lines
+	size_t verticesSize = sizeof(vertices) / sizeof(vertices[0]);
 
-	GLfloat LargestX = FindLargestX();
-	GLfloat SmallestX = FindSmallestX();
+	GLfloat xmax = MaxX(vertices, verticesSize, vertexDataSize);
+	std::cout << xmax << " is the maximum x value in the data \n\n\n";
 
-	GLfloat LargestY = FindLargestY();
-	GLfloat SmallestY = FindSmallestY();
+	GLfloat ymax = MaxY(vertices, verticesSize, vertexDataSize);
+	std::cout << ymax << " is the maximum y value in the data \n\n\n";
 
-	std::cout << "\n\nThe largest and smallest X Y and Z values are: " << LargestX << " " << SmallestX << " " << LargestY << " " << SmallestY << " " << LargestZ << " " << SmallestZ << "\n\n" << std::endl;
+	GLfloat zmax = MaxZ(vertices, verticesSize, vertexDataSize);
+	std::cout << zmax << " is the maximum z value in the data \n\n\n";
+
+	GLfloat xmin = MinX(vertices, verticesSize, vertexDataSize);
+	std::cout << xmin << " is the minimum x value in the data \n\n\n";
+
+	GLfloat ymin = MinY(vertices, verticesSize, vertexDataSize);
+	std::cout << ymin << " is the minimum y value in the data \n\n\n";
+
+	GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
+	std::cout << zmin << " is the minimum Z value in the data \n\n\n";
+	
+
+	//GLfloat LargestX = FindLargestX(vertices, vertexDataSize);
+	//GLfloat SmallestX = FindSmallestX(vertices, vertexDataSize);
+
+	//GLfloat LargestY = FindLargestY(vertices, vertexDataSize);
+	//GLfloat SmallestY = FindSmallestY(vertices, vertexDataSize);
+
+	//std::cout << "\n\nThe largest and smallest X Y and Z values are: " << LargestZ << std::endl; //LargestX << " " << SmallestX << " " << LargestY << " " << SmallestY << " " << LargestZ << " " << SmallestZ << "\n\n" << std::endl;
 
 
 
-	Generate2DShape(LargestZ);
+	Generate2DShape(zmax);
 
 	//Allocate space for an array
 	GLfloat vertices_2d_array[33];
@@ -274,28 +295,14 @@ int main()
 		// Binds texture so that is appears in rendering
 		zosukeTex.Bind();
 		// Bind the VAO so OpenGL knows to use it
-		if (draw_3d == true) {
+		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+			VAO2.Bind(); 	
+			glDrawElements(GL_TRIANGLES, sizeof(indices_2d) / sizeof(int), GL_UNSIGNED_INT, 0);
+		}
+		else {
 			VAO1.Bind();
 			// Draw primitives, number of indices, datatype of indices, index of indices
 			glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-		}
-		else {
-			VAO2.Bind();
-			//specify the primitive type, the number of elements, the type of hte elements and a pointer to where the indices are stored.
-			glDrawElements(GL_TRIANGLES, sizeof(indices_2d) / sizeof(int), GL_UNSIGNED_INT, 0);
-		}
-		
-		if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-			draw_3d = false;
-		}
-		if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-			draw_3d = true;
-		}
-		else if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-			VAO1.Bind();
-			glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-			VAO2.Bind(); 	
-			glDrawElements(GL_TRIANGLES, sizeof(indices_2d) / sizeof(int), GL_UNSIGNED_INT, 0);
 		}
 
 		// Tells OpenGL which Shader Program we want to use
@@ -336,123 +343,133 @@ int main()
 	return 0;
 }
 
-GLfloat FindLargestZ() 
+GLfloat MaxZ(GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	int counter = 0;
-	GLfloat largest = -100.f;
-	for (auto x : vertices) {
-		std::cout << x << " ";
-		if (counter == 2 && largest < x) { //If we are at the z coordinate then compare against largest.
-			largest = x;
-			std::cout << "The current highest z value is: " << largest << std::endl;
+	size_t counter = 0;
+	GLfloat zmax = -1000.f;
+	for (size_t x = 0; x < verticesSize; x++) {
+		if (counter == 2) {
+			if (((float)zmax < (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
+				zmax = vertexData[x];
+			}
 		}
-		++counter;
-		if (counter == vertexDataSize) {
-			std::cout << std::endl;
+		counter += 1;
+		if (counter == numComponents) {
 			counter = 0;
 		}
 		continue;
 	}
-	return largest;
+	return zmax;
 }
 
-GLfloat FindSmallestZ()
+GLfloat MaxY(GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	int counter = 0;
-	GLfloat smallest = 100.f;
-	for (auto x : vertices) {
-		std::cout << x << " ";
-		if (counter == 2 && smallest > x) { //If we are at the z coordinate then compare against largest.
-			smallest = x;
-			std::cout << "The current smallest z value is: " << smallest << std::endl;
+	size_t counter = 0;
+	GLfloat ymax = -1000.f;
+	for (size_t x = 0; x < verticesSize; x++) {
+		if (counter == 1) {
+			if (((float)ymax < (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
+				ymax = vertexData[x];
+			}
 		}
-		++counter;
-		if (counter == vertexDataSize) {
-			std::cout << std::endl;
+		counter += 1;
+		if (counter == numComponents) {
 			counter = 0;
 		}
 		continue;
 	}
-	return smallest;
+	return ymax;
 }
 
-GLfloat FindLargestY()
+GLfloat MaxX(GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	int counter = 0;
-	GLfloat largest = -100.f;
-	for (auto x : vertices) {
-		std::cout << x << " ";
-		if (counter == 1 && largest < x) { //If we are at the z coordinate then compare against largest.
-			largest = x;
-			std::cout << "The current highest y value is: " << largest << std::endl;
+	size_t counter = 0;
+	GLfloat xmax = -1000.f;
+	for (size_t x = 0; x < verticesSize; x++) {
+		if (counter == 0) {
+			if (((float)xmax < (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
+				xmax = vertexData[x];
+			}
 		}
-		++counter;
-		if (counter == vertexDataSize) {
-			std::cout << std::endl;
+		counter += 1;
+		if (counter == numComponents) {
 			counter = 0;
 		}
 		continue;
 	}
-	return largest;
+	return xmax;
 }
 
-GLfloat FindSmallestY()
+GLfloat MinZ(GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	int counter = 0;
-	GLfloat smallest = 100.f;
-	for (auto x : vertices) {
-		std::cout << x << " ";
-		if (counter == 1 && smallest > x) { //If we are at the z coordinate then compare against largest.
-			smallest = x;
-			std::cout << "The current smallest y value is: " << smallest << std::endl;
+	size_t counter = 0;
+	GLfloat zmin = 1000.f;
+	for (size_t x = 0; x < verticesSize; x++) {
+
+		if (counter == 2) {
+			if (((float)zmin > (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
+				//std::cout << "Larger found" << std::endl;
+				zmin = vertexData[x];
+				//std::cout << "The current highest z value is: " << largest << std::endl;
+			}
 		}
-		++counter;
-		if (counter == vertexDataSize) {
-			std::cout << std::endl;
+		counter += 1;
+		if (counter == numComponents) {
 			counter = 0;
 		}
 		continue;
 	}
-	return smallest;
-}
-GLfloat FindLargestX()
-{
-	int counter = 0;
-	GLfloat largest = -100.f;
-	for (auto x : vertices) {
-		std::cout << x << " ";
-		if (counter == 0 && largest < x) { //If we are at the z coordinate then compare against largest.
-			largest = x;
-			std::cout << "The current highest x value is: " << largest << std::endl;
-		}
-		++counter;
-		if (counter == vertexDataSize) {
-			std::cout << std::endl;
-			counter = 0;
-		}
-		continue;
-	}
-	return largest;
+	return zmin;
 }
 
-GLfloat FindSmallestX()
+GLfloat MinY(GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	int counter = 0;
-	GLfloat smallest = 100.f;
-	for (auto x : vertices) {
-		std::cout << x << " ";
-		if (counter == 0 && smallest > x) { //If we are at the z coordinate then compare against largest.
-			smallest = x;
-			std::cout << "The current smallest x value is: " << smallest << std::endl;
+	size_t counter = 0;
+	GLfloat ymin = 1000.f;
+	for (size_t x = 0; x < verticesSize; x++) {
+
+		if (counter == 1) {
+			//std::cout << "Counter is: " << counter << std::endl;
+			//std::cout << "Comparing " << ymin << " and " << vertexData[x] << std::endl;
+			if (((float)ymin > (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
+				//std::cout << "Larger found" << std::endl;
+				ymin = vertexData[x];
+				//std::cout << "The current highest z value is: " << largest << std::endl;
+			}
 		}
-		++counter;
-		if (counter == vertexDataSize) {
-			std::cout << std::endl;
+		counter += 1;
+		if (counter == numComponents) {
+			//std::cout << "End of current vertex data" << std::endl;
 			counter = 0;
 		}
 		continue;
 	}
-	return smallest;
+	return ymin;
+}
+
+GLfloat MinX(GLfloat vertexData[], size_t verticesSize, int numComponents)
+{
+	size_t counter = 0;
+	GLfloat xmin = 1000.f;
+	for (size_t x = 0; x < verticesSize; x++) {
+
+		if (counter == 0) {
+			//std::cout << "Counter is: " << counter << std::endl;
+			//std::cout << "Comparing " << xmin << " and " << vertexData[x] << std::endl;
+			if (((float)xmin > (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
+				//std::cout << "Larger found" << std::endl;
+				xmin = vertexData[x];
+				//std::cout << "The current highest z value is: " << largest << std::endl;
+			}
+		}
+		counter += 1;
+		if (counter == numComponents) {
+			//std::cout << "End of current vertex data" << std::endl;
+			counter = 0;
+		}
+		continue;
+	}
+	return xmin;
 }
 
 void Generate2DShape(GLfloat LargestZ)
