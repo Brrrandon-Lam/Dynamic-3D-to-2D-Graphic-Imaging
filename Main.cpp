@@ -339,8 +339,19 @@ int main()
 	}
 
 	/*Deallocate Dynamic memory*/
-		
+	for (int i = 0; i < needed_2d_vertices_size;i++)
+	{
+		delete[] vertices_2d_array[i];
 
+	}
+	delete[] vertices_2d_array;
+
+	for (int i = 0; i < numIndices;i++)
+	{
+		delete[] indices_2d[i];
+
+	}
+	delete[] indices_2d;
 
 
 	// Delete all the objects we've created
