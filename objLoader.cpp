@@ -6,12 +6,12 @@ std::vector< glm::vec3 > temp_vertices;
 std::vector< glm::vec2 > temp_uvs;
 std::vector< glm::vec3 > temp_normals;
 
-bool loadOBJ(const char* path, std::vector < glm::vec3 >& out_vertices,std::vector < glm::vec2 >& out_uvs,std::vector < glm::vec3 >& out_normals)
+GLfloat* loadOBJ(const char* path)
 {
     FILE* file = fopen(path, "r");
     if (file == NULL) {
         printf("Impossible to open the file !\n");
-        return false;
+        return NULL;
     }
 
     while (1) {
@@ -45,7 +45,7 @@ bool loadOBJ(const char* path, std::vector < glm::vec3 >& out_vertices,std::vect
             int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
             if (matches != 9) {
                 printf("File can't be read by our simple parser : ( Try exporting with other options\n");
-                return false;
+                return NULL;
             }
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
@@ -64,9 +64,51 @@ bool loadOBJ(const char* path, std::vector < glm::vec3 >& out_vertices,std::vect
 
                 glm::vec3 vertex = temp_vertices[vertexIndex - 1];
 
-                out_vertices.push_back(vertex);
+                //out_vertices.push_back(vertex);
             }
 
         }
     }
+
+    size_t arrayLen = temp_vertices.size();
+    GLfloat* toReturnInfo = new GLfloat [arrayLen];
+    int spotInVertex = 0;
+    for (size_t i = 0; i < arrayLen; i += 11)
+    {
+        toReturnInfo[i] = temp_vertices.at(spotInVertex).x;
+        toReturnInfo[i + 1] = temp_vertices.at(spotInVertex).y;
+        toReturnInfo[i + 2] = temp_vertices.at(spotInVertex).z;
+
+        toReturnInfo[i + 3] = 1.f;
+        toReturnInfo[i + 4] = 1.f;
+        toReturnInfo[i + 5] = 1.f;
+
+        toReturnInfo[i + 6] = temp_uvs.at(spotInVertex).s;
+        toReturnInfo[i + 7] = temp_uvs.at(spotInVertex).t;
+
+        toReturnInfo[i + 8] = temp_normals.at(spotInVertex).x;
+        toReturnInfo[i + 9] = temp_normals.at(spotInVertex).y;
+        toReturnInfo[i + 10] = temp_normals.at(spotInVertex).z;
+
+        spotInVertex++;
+        printf("%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n",
+            i,
+            toReturnInfo[i],
+            toReturnInfo[i + 1],
+            toReturnInfo[i + 2],
+
+            toReturnInfo[i + 3],
+            toReturnInfo[i + 4],
+            toReturnInfo[i + 5],
+
+            toReturnInfo[i + 6],
+            toReturnInfo[i + 7],
+
+            toReturnInfo[i + 8],
+            toReturnInfo[i + 9],
+            toReturnInfo[i + 10]
+        );
+    }
+
+    return toReturnInfo;
 }
