@@ -27,6 +27,7 @@ GLfloat* loadOBJ(const char* path)
         if (strcmp(lineHeader, "v") == 0) {
             glm::vec3 vertex;
             fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+            //printf("added %2.6f %2.6f %2.6f\n", vertex.x, vertex.y, vertex.z);
             temp_vertices.push_back(vertex);
         }
         else if (strcmp(lineHeader, "vt") == 0) {
@@ -43,10 +44,11 @@ GLfloat* loadOBJ(const char* path)
             std::string vertex1, vertex2, vertex3;
             unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
             int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-            if (matches != 9) {
+            /*if (matches != 9) {
                 printf("File can't be read by our simple parser : ( Try exporting with other options\n");
                 return NULL;
-            }
+            }*/
+            //printf("%d/%d/%d %d/%d/%d %d/%d/%d\n", vertexIndex[0], uvIndex[0], normalIndex[0], vertexIndex[1], uvIndex[1], normalIndex[1], vertexIndex[2], uvIndex[2], normalIndex[2]);
             vertexIndices.push_back(vertexIndex[0]);
             vertexIndices.push_back(vertexIndex[1]);
             vertexIndices.push_back(vertexIndex[2]);
@@ -70,11 +72,15 @@ GLfloat* loadOBJ(const char* path)
         }
     }
 
-    size_t arrayLen = temp_vertices.size() * 11;
+    int arrayLen = temp_vertices.size() * 11;
+    printf("arrayLen: %d \n", arrayLen);
     printf("ARRAY SIZES: %d %d %d\n", temp_vertices.size(), temp_normals.size(), temp_uvs.size());
     GLfloat* toReturnInfo = new GLfloat [arrayLen];
+    printf("SIZE?? %d\n", sizeof(toReturnInfo));
     int spotInVertex = 0;
-    for (size_t i = 0; i < arrayLen; i += 11)
+    int spotInNormals = 0;
+    int spotInTex = 0;
+    for (int i = 0; i < arrayLen; i += 11)
     {
         toReturnInfo[i] = temp_vertices.at(spotInVertex).x;
         toReturnInfo[i + 1] = temp_vertices.at(spotInVertex).y;
@@ -84,15 +90,15 @@ GLfloat* loadOBJ(const char* path)
         toReturnInfo[i + 4] = 1.f;
         toReturnInfo[i + 5] = 1.f;
 
-        toReturnInfo[i + 6] = temp_uvs.at(spotInVertex).s;
-        toReturnInfo[i + 7] = temp_uvs.at(spotInVertex).t;
+        toReturnInfo[i + 6] = temp_uvs.at(spotInTex).s;
+        toReturnInfo[i + 7] = temp_uvs.at(spotInTex).t;
 
-        toReturnInfo[i + 8] = temp_normals.at(spotInVertex).x;
-        toReturnInfo[i + 9] = temp_normals.at(spotInVertex).y;
-        toReturnInfo[i + 10] = temp_normals.at(spotInVertex).z;
+        toReturnInfo[i + 8] = temp_normals.at(spotInNormals).x;
+        toReturnInfo[i + 9] = temp_normals.at(spotInNormals).y;
+        toReturnInfo[i + 10] = temp_normals.at(spotInNormals).z;
 
         spotInVertex++;
-        printf("%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n",
+        fprintf(stderr, "%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n",
             i,
             toReturnInfo[i],
             toReturnInfo[i + 1],
@@ -109,7 +115,7 @@ GLfloat* loadOBJ(const char* path)
             toReturnInfo[i + 9],
             toReturnInfo[i + 10]
         );
-        printf("arrayLen: %d \n", arrayLen -= 11);
+        printf("arrayLen: %d \n", arrayLen - (i));
     }
 
     return toReturnInfo;

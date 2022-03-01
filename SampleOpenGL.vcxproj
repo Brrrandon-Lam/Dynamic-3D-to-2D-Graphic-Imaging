@@ -121,13 +121,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL\Libraries\lib;C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL_dana\Libraries\lib;C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL_dana\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL\Libraries\lib;C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL\Libraries\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL_dana\Libraries\lib;C:\Users\Mr1Vgy\Documents\For School\CS462\Test-OpenGL_dana\Libraries\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
