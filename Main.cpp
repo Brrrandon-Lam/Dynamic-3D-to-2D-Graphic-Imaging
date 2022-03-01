@@ -27,8 +27,15 @@ GLfloat MaxZ(GLfloat vertexData[], size_t verticesSize, int numComponents); //Re
 bool draw_3d = true;
 bool axis_align = true; //If you want to axis align the new set of vertices.
 
-void Generate2DShape(GLfloat LargestZ);
-void ProcessVertices(std::string axis);
+void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+void TransformPosY(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+void TransformPosZ(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+
+void TransformNegX(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+void TransformNegY(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+void TransformNegZ(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+
+
 
 const unsigned int width = 1600;
 const unsigned int height = 900;
@@ -140,14 +147,24 @@ int main()
 	size_t verticesSize = sizeof(vertices) / sizeof(vertices[0]); //Calculates the size of the vertex data
 
 	//Each of these functions takes in a list of vertices, the size of the list of vertices, and the size of an independent vertex.
+	
+
+	//TransformPosX("+x", true, vertices, verticesSize, vertexDataSize);
+	//TransformPosY("+y", true, vertices, verticesSize, vertexDataSize);
+	//TransformPosZ("+z", true, vertices, verticesSize, vertexDataSize);
+
+	TransformNegX("-x", true, vertices, verticesSize, vertexDataSize);
+	//TransformNegY("-y", false, vertices, verticesSize, vertexDataSize);
+	//TransformNegZ("-z", true, vertices, verticesSize, vertexDataSize);
+
 	GLfloat xmax = MaxX(vertices, verticesSize, vertexDataSize);
 	std::cout << xmax << " is the maximum x value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat ymax = MaxY(vertices, verticesSize, vertexDataSize);
 	std::cout << ymax << " is the maximum y value in the data \n\n\n"; // DEBUGGING LINE
 
-	GLfloat zmax = MaxZ(vertices, verticesSize, vertexDataSize);
-	std::cout << zmax << " is the maximum z value in the data \n\n\n"; // DEBUGGING LINE
+	//GLfloat zmax = MaxZ(vertices, verticesSize, vertexDataSize);
+	//std::cout << zmax << " is the maximum z value in the data \n\n\n"; // DEBUGGING LINE
 
 	GLfloat xmin = MinX(vertices, verticesSize, vertexDataSize);
 	std::cout << xmin << " is the minimum x value in the data \n\n\n"; // DEBUGGING LINE
@@ -157,14 +174,11 @@ int main()
 
 	GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
 	std::cout << zmin << " is the minimum Z value in the data \n\n\n"; // DEBUGGING LINE
-	
 
-
-	Generate2DShape(zmax);
 
 	//Allocate space for an array
-	GLfloat vertices_2d_array[33];
-	GLuint indices_2d[3];
+	GLfloat vertices_2d_array[55];
+	GLuint indices_2d[6];
 	
 	//copy contents over
 	
@@ -191,10 +205,10 @@ int main()
 	std::cout << "Created VAO with " << sizeof(vertices) << " vertices and " << sizeof(indices) << " indices." << std::endl;
 	
 	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
-	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)0); //This links the coordinates
+	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
+	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
+	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
 
 	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
@@ -206,10 +220,10 @@ int main()
 	VBO VBO2(vertices_2d_array, sizeof(vertices_2d_array));
 	EBO EBO2(indices_2d, sizeof(indices_2d));
 	
-	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
-	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
-	VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
-	VAO2.LinkAttrib(VBO2, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)0); //This links the coordinates
+	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
+	VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
+	VAO2.LinkAttrib(VBO2, 3, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
 
 	VAO2.Unbind();
 	VBO2.Unbind();
@@ -313,8 +327,6 @@ int main()
 		// Take care of all GLFW events
 		glfwPollEvents();
 	}
-
-
 
 	// Delete all the objects we've created
 	VAO1.Delete();
@@ -465,131 +477,469 @@ GLfloat MinX(GLfloat vertexData[], size_t verticesSize, int numComponents)
 	return xmin;
 }
 
-void Generate2DShape(GLfloat LargestZ)
+void TransformPosY(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	//each row of the array has 11 elements
-	// (x, y, z) (r, g, b), (s, t), (xnorm, ynorm, znorm)
+	GLfloat currentVertexCoordinates[4] = {};
+	std::vector<GLfloat> vertices_mutable{};
+	std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
+	//create a vector that we can modify to not destroy the 3D object.
+	for (size_t i = 0; i < verticesSize; ++i) {
+		vertices_mutable.push_back(vertexData[i]);
+	}
 	int counter = 0;
-	int vertexCount = 0;
-	//This function does some stuff oh god
-	ProcessVertices("z");
-	//for (auto x : vertices_2d) {
-		//
-	//}
-}
-	
-//This function will process the vertices and only return the frontmost unique ones.
+	//maintains a list of rows to erase.
+	//go up to the coordinates before the last.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
+		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
+		currentVertexCoordinates[1] = vertices_mutable[i + 1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i + 2]; //store z
+		currentVertexCoordinates[3] = i; //store its position.
 
-void ProcessVertices(std::string axis)
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
+			//check x y and that it is not itself.
+			if (currentVertexCoordinates[0] == vertices_mutable.at(j) && currentVertexCoordinates[2] == vertices_mutable.at(j + 2) && j != currentVertexCoordinates[3]) {
+				//If the current is greater, flag the other for erase.
+				if (float(currentVertexCoordinates[1]) >= float(vertices_mutable[j+1])) {
+					//std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl; //Debug Line
+					//std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//erase elements j thru j + 10
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
+					//if we erase a point behind the current position, we need to update the location of the current position
+					if (j < currentVertexCoordinates[3]) {
+						currentVertexCoordinates[3] -= numComponents;
+					}
+				}
+				//else, remove the current
+				else {
+					//std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl; //Debug Line
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + numComponents);
+				}
+				//if found, we need to check the vertices again because the positions have shifted.
+				j = 0;
+			}
+		}
+	}
+	//If we want to axis align
+	int counter3 = 0;
+	int iterationCounter = 0;
+	if (axis_align == true) {
+		GLfloat ymax = MaxY(vertices, verticesSize, vertexDataSize);
+		for (auto x : vertices_mutable) {
+			if (counter3 == 1) {
+				vertices_mutable[counter3 + (11 * iterationCounter)] = ymax;
+			}
+			++counter3;
+			if (counter3 == numComponents) {
+				++iterationCounter;
+				counter3 = 0;
+			}
+		}
+	}
+	/**** DEBUGGING BLOCK ****/
+	std::cout << "\n\n The final list of vertices is: " << std::endl;
+	int counter2 = 0;
+	for (auto x : vertices_mutable) {
+		vertices_2d.push_back(x);
+		std::cout << x << " ";
+		++counter2;
+		if (counter2 == numComponents) {
+			counter2 = 0;
+			std::cout << std::endl;
+		}
+	}
+}
+
+void TransformNegY(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
 {
-	std::cout << "Processing Vertices\n\n\n\n";
+	GLfloat currentVertexCoordinates[4] = {};
+	std::vector<GLfloat> vertices_mutable{};
+	std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
+	//create a vector that we can modify to not destroy the 3D object.
+	for (size_t i = 0; i < verticesSize; ++i) {
+		vertices_mutable.push_back(vertexData[i]);
+	}
+	int counter = 0;
+	//maintains a list of rows to erase.
+	//go up to the coordinates before the last.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
+		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
+		currentVertexCoordinates[1] = vertices_mutable[i + 1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i + 2]; //store z
+		currentVertexCoordinates[3] = i; //store its position.
+
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
+			//check x y and that it is not itself.
+			if (currentVertexCoordinates[0] == vertices_mutable.at(j) && currentVertexCoordinates[2] == vertices_mutable.at(j + 2) && j != currentVertexCoordinates[3]) {
+				//If the current is greater, flag the other for erase.
+				if (float(currentVertexCoordinates[1]) <= float(vertices_mutable[j + 1])) {
+					//std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl; //Debug Line
+					//std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//erase elements j thru j + 10
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
+					//if we erase a point behind the current position, we need to update the location of the current position
+					if (j < currentVertexCoordinates[3]) {
+						currentVertexCoordinates[3] -= numComponents;
+					}
+				}
+				//else, remove the current
+				else {
+					//std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl; //Debug Line
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + numComponents);
+				}
+				//if found, we need to check the vertices again because the positions have shifted.
+				j = 0;
+			}
+		}
+	}
+	//If we want to axis align
+	int counter3 = 0;
+	int iterationCounter = 0;
+	if (axis_align == true) {
+		GLfloat ymin = MinY(vertices, verticesSize, vertexDataSize);
+		for (auto x : vertices_mutable) {
+			if (counter3 == 1) {
+				vertices_mutable[counter3 + (numComponents * iterationCounter)] = ymin;
+			}
+			++counter3;
+			if (counter3 == numComponents) {
+				++iterationCounter;
+				counter3 = 0;
+			}
+		}
+	}
+	/**** DEBUGGING BLOCK ****/
+	std::cout << "\n\n The final list of vertices is: " << std::endl;
+	int counter2 = 0;
+	for (auto x : vertices_mutable) {
+		vertices_2d.push_back(x);
+		std::cout << x << " ";
+		++counter2;
+		if (counter2 == numComponents) {
+			counter2 = 0;
+			std::cout << std::endl;
+		}
+	}
+}
+
+void TransformPosZ(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
+{
+	/****** PROCESS VERTICES *****/
+
+	std::cout << "Processing Vertices\n\n\n\n"; //Debug Line
 	//For storing the current vertex coordinates.
 	GLfloat currentVertexCoordinates[4] = {};
 	std::vector<GLfloat> vertices_mutable{};
 	//Get the size of the array
-	int size = static_cast<int>(sizeof(vertices) / sizeof(GLfloat));
+
+	//std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
 
 	//create a vector that we can modify to not destroy the 3D object.
-	for (auto x : vertices) {
-		vertices_mutable.push_back(x);
+	for (size_t i = 0; i < verticesSize; ++i) {
+		vertices_mutable.push_back(vertexData[i]);
 	}
 
 	int counter = 0;
 	int loopCount = 0;
 	//maintains a list of rows to erase.
 	//go up to the coordinates before the last.
-	//fix iteration ( no hardcode) 
-	for (int i = 0; i < vertices_mutable.size(); i += vertexDataSize) { //iterate through our vector and grab the vertex coordinates.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
 		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
 		currentVertexCoordinates[1] = vertices_mutable[i+1]; //store y
 		currentVertexCoordinates[2] = vertices_mutable[i+2]; //store z
 		currentVertexCoordinates[3] = i; //store its position.
 		bool found = false;
-		//debug line
-		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl;
 		
-		for (int j = 0; j < vertices_mutable.size(); j += vertexDataSize) { //iterate through our vector
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+		
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
 			//check x y and that it is not itself.
 			if (currentVertexCoordinates[0] == vertices_mutable.at(j) && currentVertexCoordinates[1] == vertices_mutable.at(j + 1) && j != currentVertexCoordinates[3]) {
 				//If the current is greater, flag the other for erase.
 				if (float(currentVertexCoordinates[2]) >= float(vertices_mutable.at(j + 2))) {
-					std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl;
-					std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl; //Debug Line
+					//std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
 					//erase elements j thru j + 10
-					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + 11);
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
 					//if we erase a point behind the current position, we need to update the location of the current position
 					if (j < currentVertexCoordinates[3]) {
-						currentVertexCoordinates[3] -= 11;
+						currentVertexCoordinates[3] -= numComponents;
 					}
 				}
 				//else, remove the current
 				else {
-					std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl;
-					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + 11);
+					//std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl; //Debug Line
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + numComponents);
 				}
 				//if found, we need to check the vertices again because the positions have shifted.
 				j = 0;
 			}
 		}
-		std::cout << "\n\n Vertices remaining at this iteration \n\n";
-		std::cout << "Size of the array is: " << vertices_mutable.size() << std::endl;
+	}
+	//If we want to axis align
+	int counter3 = 0;
+	int iterationCounter = 0;
+	if (axis_align == true) {
+		GLfloat zmax = MaxZ(vertices, verticesSize, vertexDataSize);
 		for (auto x : vertices_mutable) {
-			std::cout << x << " ";
-			++counter;
-			if (counter == 11) {
-				counter = 0;
-				std::cout << std::endl;
+			if (counter3 == 2) {
+				vertices_mutable[counter3 + (numComponents *iterationCounter)] = zmax;
+			}
+			++counter3;
+			if (counter3 == numComponents) {
+				++iterationCounter;
+				counter3 = 0;
 			}
 		}
-		//check xyz against all other xyz
-		//if match, take the max of z
-		//if no match, push to vector.
-		
 	}
+	/**** DEBUGGING BLOCK ****/
 	std::cout << "\n\n The final list of vertices is: " << std::endl;
-	int help = 0;
+	int counter2 = 0;
 	for (auto x : vertices_mutable) {
 		vertices_2d.push_back(x);
 		std::cout << x << " ";
-		++help;
-		if (help == 11) {
-			help = 0;
+		++counter2;
+		if (counter2 == numComponents) {
+			counter2 = 0;
 			std::cout << std::endl;
 		}
 	}
 }
 
-/*
-* Function Name: Process Vertices
-* Description: Takes in an axis (+z, -z, +x, -x, +y, -y), a boolean and a list of vertices. The axis indicates which axis to transform based on.
-*			   The boolean will determine whether or not the transformed object is flattened to that axis or not.
-*			   The list of vertices determines what vertices the transformation will be applied to.
-* Inputs: Axis, Alignment, Vertices
-* Output: 2D Vertices
-*/
-/*
-void ProcessVertices(std::string axis, bool axis_alignment, GLfloat vertexData[]) {
-	if (axis == "+x") {
-		//TransformPosX();
+void TransformNegZ(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
+{
+	/****** PROCESS VERTICES *****/
+
+	std::cout << "Processing Vertices\n\n\n\n"; //Debug Line
+	//For storing the current vertex coordinates.
+	GLfloat currentVertexCoordinates[4] = {};
+	std::vector<GLfloat> vertices_mutable{};
+	//Get the size of the array
+
+	//std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
+
+	//create a vector that we can modify to not destroy the 3D object.
+	for (size_t i = 0; i < verticesSize; ++i) {
+		vertices_mutable.push_back(vertexData[i]);
 	}
-	else if (axis == "-x") {
-		//TransformNegX();
+
+	int counter = 0;
+	int loopCount = 0;
+	//maintains a list of rows to erase.
+	//go up to the coordinates before the last.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
+		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
+		currentVertexCoordinates[1] = vertices_mutable[i + 1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i + 2]; //store z
+		currentVertexCoordinates[3] = i; //store its position.
+		bool found = false;
+
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
+			//check x y and that it is not itself.
+			if (currentVertexCoordinates[0] == vertices_mutable.at(j) && currentVertexCoordinates[1] == vertices_mutable.at(j + 1) && j != currentVertexCoordinates[3]) {
+				//If the current is greater, flag the other for erase.
+				if (float(currentVertexCoordinates[2]) <= float(vertices_mutable.at(j + 2))) {
+					//std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl; //Debug Line
+					//std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//erase elements j thru j + 10
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
+					//if we erase a point behind the current position, we need to update the location of the current position
+					if (j < currentVertexCoordinates[3]) {
+						currentVertexCoordinates[3] -= numComponents;
+					}
+				}
+				//else, remove the current
+				else {
+					//std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl; //Debug Line
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + numComponents);
+				}
+				//if found, we need to check the vertices again because the positions have shifted.
+				j = 0;
+			}
+		}
 	}
-	else if (axis == "+y") {
-		//TransformPosY()
+	//If we want to axis align
+	int counter3 = 0;
+	int iterationCounter = 0;
+	if (axis_align == true) {
+		GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
+		for (auto x : vertices_mutable) {
+			if (counter3 == 2) {
+				vertices_mutable[counter3 + (numComponents * iterationCounter)] = zmin;
+			}
+			++counter3;
+			if (counter3 == numComponents) {
+				++iterationCounter;
+				counter3 = 0;
+			}
+		}
 	}
-	else if (axis == "-y") {
-		//TransformNegY()
-	}
-	else if (axis == "+z") {
-		//TransformPosZ()
-	}
-	else if (axis == "-z") {
-		//TransformNegZ()
-	}
-	else {
-		std::cout << "Invalid axis input, should be: +z +y +x -z -y -x" << std::endl;
-		exit(-1);
+	/**** DEBUGGING BLOCK ****/
+	std::cout << "\n\n The final list of vertices is: " << std::endl;
+	int counter2 = 0;
+	for (auto x : vertices_mutable) {
+		vertices_2d.push_back(x);
+		std::cout << x << " ";
+		++counter2;
+		if (counter2 == numComponents) {
+			counter2 = 0;
+			std::cout << std::endl;
+		}
 	}
 }
-*/
+
+void TransformNegX(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
+{
+	GLfloat currentVertexCoordinates[4] = {};
+	std::vector<GLfloat> vertices_mutable{};
+	std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
+	//create a vector that we can modify to not destroy the 3D object.
+	for (size_t i = 0; i < verticesSize; ++i) {
+		vertices_mutable.push_back(vertexData[i]);
+	}
+	int counter = 0;
+	//maintains a list of rows to erase.
+	//go up to the coordinates before the last.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
+		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
+		currentVertexCoordinates[1] = vertices_mutable[i + 1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i + 2]; //store z
+		currentVertexCoordinates[3] = i; //store its position.
+
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
+			//check x y and that it is not itself.
+			if (currentVertexCoordinates[1] == vertices_mutable.at(j + 1) && currentVertexCoordinates[2] == vertices_mutable.at(j + 2) && j != currentVertexCoordinates[3]) {
+				//If the current is greater, flag the other for erase.
+				if (float(currentVertexCoordinates[0]) <= float(vertices_mutable[j])) {
+					//std::cout << "(ERASE FOUND) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 2] << std::endl; //Debug Line
+					//std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//erase elements j thru j + 10
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
+					//if we erase a point behind the current position, we need to update the location of the current position
+					if (j < currentVertexCoordinates[3]) {
+						currentVertexCoordinates[3] -= numComponents;
+					}
+				}
+				//else, remove the current
+				else {
+					//std::cout << "(ERASE CURRENT) The z value of current is " << currentVertexCoordinates[2] << " and the z value of j is " << vertices_mutable[j + 3] << std::endl; //Debug Line
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + numComponents);
+				}
+				//if found, we need to check the vertices again because the positions have shifted.
+				j = 0;
+			}
+		}
+	}
+	//If we want to axis align
+	int counter3 = 0;
+	int iterationCounter = 0;
+	if (axis_align == true) {
+		GLfloat xmin = MinX(vertices, verticesSize, vertexDataSize);
+		for (auto x : vertices_mutable) {
+			if (counter3 == 0) {
+				vertices_mutable[counter3 + (numComponents * iterationCounter)] = xmin;
+			}
+			++counter3;
+			if (counter3 == numComponents) {
+				++iterationCounter;
+				counter3 = 0;
+			}
+		}
+	}
+	/**** DEBUGGING BLOCK ****/
+	std::cout << "\n\n The final list of vertices is: " << std::endl;
+	int counter2 = 0;
+	for (auto x : vertices_mutable) {
+		vertices_2d.push_back(x);
+		std::cout << x << " ";
+		++counter2;
+		if (counter2 == numComponents) {
+			counter2 = 0;
+			std::cout << std::endl;
+		}
+	}
+}
+
+void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
+{
+	GLfloat currentVertexCoordinates[4] = {};
+	std::vector<GLfloat> vertices_mutable{};
+	std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
+	//create a vector that we can modify to not destroy the 3D object.
+	for (size_t i = 0; i < verticesSize; ++i) {
+		vertices_mutable.push_back(vertexData[i]);
+	}
+	int counter = 0;
+	//maintains a list of rows to erase.
+	//go up to the coordinates before the last.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
+		//TODO: convert to struct (3 floats + int)
+		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
+		currentVertexCoordinates[1] = vertices_mutable[i+1]; //store y
+		currentVertexCoordinates[2] = vertices_mutable[i+2]; //store z
+		currentVertexCoordinates[3] = i; //store its position.
+
+		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
+			//If we find an overlapping y and z, and find that the positions in the vertex array are not the same, compare for removal.
+			if ((currentVertexCoordinates[1] == vertices_mutable[j+1]) && (currentVertexCoordinates[2] == vertices_mutable[j+2]) && (j != currentVertexCoordinates[3])) {
+				std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << std::endl; //Debug Line
+				std::cout << "Comparison: " << vertices_mutable[j] << " " << vertices_mutable[j + 1] << " " << vertices_mutable[j + 2] << std::endl; //Debug Line
+				//If the current is greater, flag the other for erase.
+				//subtract, fabs, small tolerance
+				if (float(currentVertexCoordinates[0]) >= float(vertices_mutable[j])) {
+					std::cout << "(ERASE FOUND) The x value of current is " << currentVertexCoordinates[0] << " and the x value of j is " << vertices_mutable[j] << std::endl; //Debug Line
+					//std::cout << vertices_mutable.at(j) << " " << vertices_mutable.at(j + 1) << " " << vertices_mutable.at(j + 2) << std::endl;
+					//erase elements j thru j + 10
+					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
+					//if we erase a point behind the current position, we need to update the location of the current position
+					if (j < currentVertexCoordinates[3]) {
+						currentVertexCoordinates[3] -= numComponents;
+					}
+				}
+				//else, remove the current
+				else {
+					std::cout << "(ERASE CURRENT) The x value of current is " << currentVertexCoordinates[0] << " and the x value of j is " << vertices_mutable[j] << std::endl; //Debug Line
+					vertices_mutable.erase(vertices_mutable.begin() + i, vertices_mutable.begin() + i + numComponents);
+				}
+				//if found, we need to check the vertices again because the positions have shifted.
+				j = 0;
+			}
+		}
+	}
+	//If we want to axis align
+	int counter3 = 0;
+	int iterationCounter = 0;
+	if (axis_align == true) {
+		GLfloat xmax = MaxX(vertices, verticesSize, vertexDataSize);
+		for (auto x : vertices_mutable) {
+			if (counter3 == 0) {
+				vertices_mutable[counter3 + (numComponents * iterationCounter)] = xmax;
+			}
+			++counter3;
+			if (counter3 == numComponents) {
+				++iterationCounter;
+				counter3 = 0;
+			}
+		}
+	}
+	std::cout << "\n\n The final list of vertices is: " << std::endl;
+	int counter2 = 0;
+	for (auto x : vertices_mutable) {
+		vertices_2d.push_back(x);
+		std::cout << x << " ";
+		++counter2;
+		if (counter2 == numComponents) {
+			counter2 = 0;
+			std::cout << std::endl;
+		}
+	}
+}
