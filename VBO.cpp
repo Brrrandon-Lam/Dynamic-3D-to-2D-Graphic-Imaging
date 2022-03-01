@@ -8,11 +8,11 @@ VBO::VBO(GLfloat* vertices, GLsizeiptr size)
 	glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
-VBO::VBO(std::vector<glm::vec3>& vertices)
+VBO::VBO(std::vector<GLfloat>& vertices, GLsizeiptr size)
 {
 	glGenBuffers(1, &ID);
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() , &vertices, GL_STATIC_DRAW);
 }
 
 // Binds the VBO
