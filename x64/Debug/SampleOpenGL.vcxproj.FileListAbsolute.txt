@@ -1,0 +1,2 @@
+D:\CS 461 Project\Test-OpenGL\x64\Debug\SampleOpenGL.exe
+D:\CS 461 Project\Test-OpenGL\x64\Debug\SampleOpenGL.pdb
