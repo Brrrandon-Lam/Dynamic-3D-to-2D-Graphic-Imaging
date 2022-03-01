@@ -13,6 +13,7 @@
 #include"VBO.h"
 #include"EBO.h"
 #include"Camera.h"
+#include"objLoader.hpp"
 
 //Function Declaration
 //These function take in an array and return a specific value from the vertex data
@@ -33,6 +34,12 @@ void ProcessVertices(std::string axis);
 const unsigned int width = 1600;
 const unsigned int height = 900;
 const unsigned int vertexDataSize = 11;
+
+//Vectors to hold object data
+GLfloat** vertices_2d_array;
+GLuint** indices_2d;
+int needed_2d_vertices_size;
+int needed_2d_indices_size;
 
 
 
@@ -55,7 +62,7 @@ GLfloat vertices[] =
 	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
 	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
 	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
-	 5
+	 
 	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
 	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
 	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
@@ -158,25 +165,42 @@ int main()
 	GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
 	std::cout << zmin << " is the minimum Z value in the data \n\n\n"; // DEBUGGING LINE
 	
-
+	/*Read in object info*/
+	/*This needs to be redone with GLfloats instead of */
+	//bool res = loadOBJ("tigerstsM.obj", vector_vertices, vector_uvs, vector_normals);
+	//std::cout << "Loaded object with" << vector_vertices.size() << std::endl;
 
 	Generate2DShape(zmax);
 
-	//Allocate space for an array
-	GLfloat vertices_2d_array[33];
-	GLuint indices_2d[3];
-	
+	/*Allocate space for an array using dynamic memory allocation*/
+	//This number should be: 33
+	vertices_2d_array = new GLfloat * [needed_2d_vertices_size];
+	for (int i = 0; i < needed_2d_vertices_size; i++)
+	{
+		vertices_2d_array[i] = new GLfloat[1];
+	}
+
 	//copy contents over
 	
 	for(int i = 0; i < vertices_2d.size(); i++) {
-		vertices_2d_array[i] = vertices_2d[i];
+		*vertices_2d_array[i] = vertices_2d[i];
 	}
 
-	//generate inorder indices.
+
+	
 	int numIndices = vertices_2d.size() / vertexDataSize;
-	//GLuint* indices_2d = new GLuint[numIndices];
+
+	indices_2d = new GLuint * [numIndices];
+
+	/*Dynamically allocate memory for indices*/
+	for (int i = 0; i < numIndices; i++)
+	{
+		indices_2d[i] = new GLuint[1];
+	}
+	
+	//generate inorder indices.
 	for (int i = 0; i < numIndices; ++i) {
-		indices_2d[i] = i;
+		*indices_2d[i] = i;
 	}
 
 	// Generates Shader object using shaders default.vert and default.frag
@@ -203,8 +227,8 @@ int main()
 
 	VAO VAO2;
 	VAO2.Bind();
-	VBO VBO2(vertices_2d_array, sizeof(vertices_2d_array));
-	EBO EBO2(indices_2d, sizeof(indices_2d));
+	VBO VBO2(*vertices_2d_array, sizeof(vertices_2d_array));
+	EBO EBO2(*indices_2d, sizeof(indices_2d));
 	
 	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); //This links the coordinates
 	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
@@ -314,6 +338,20 @@ int main()
 		glfwPollEvents();
 	}
 
+	/*Deallocate Dynamic memory*/
+	for (int i = 0; i < needed_2d_vertices_size;i++)
+	{
+		delete[] vertices_2d_array[i];
+
+	}
+	delete[] vertices_2d_array;
+
+	for (int i = 0; i < numIndices;i++)
+	{
+		delete[] indices_2d[i];
+
+	}
+	delete[] indices_2d;
 
 
 	// Delete all the objects we've created
@@ -479,7 +517,6 @@ void Generate2DShape(GLfloat LargestZ)
 }
 	
 //This function will process the vertices and only return the frontmost unique ones.
-
 void ProcessVertices(std::string axis)
 {
 	std::cout << "Processing Vertices\n\n\n\n";
@@ -531,7 +568,6 @@ void ProcessVertices(std::string axis)
 				j = 0;
 			}
 		}
-		std::cout << "\n\n Vertices remaining at this iteration \n\n";
 		std::cout << "Size of the array is: " << vertices_mutable.size() << std::endl;
 		for (auto x : vertices_mutable) {
 			std::cout << x << " ";
@@ -546,6 +582,11 @@ void ProcessVertices(std::string axis)
 		//if no match, push to vector.
 		
 	}
+
+	/*We know the size of the 2D object will be based on the final size*/
+	needed_2d_vertices_size = vertices_mutable.size();
+
+	//std::cout << "\n\n The final size is: " << vertices_mutable.size() << std::endl;
 	std::cout << "\n\n The final list of vertices is: " << std::endl;
 	int help = 0;
 	for (auto x : vertices_mutable) {
@@ -557,6 +598,7 @@ void ProcessVertices(std::string axis)
 			std::cout << std::endl;
 		}
 	}
+
 }
 
 /*
