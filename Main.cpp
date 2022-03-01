@@ -169,7 +169,7 @@ int main()
 	/*This needs to be redone with GLfloats instead of */
 	//bool res = loadOBJ("tigerstsM.obj", vector_vertices, vector_uvs, vector_normals);
 	//std::cout << "Loaded object with" << vector_vertices.size() << std::endl;
-	loadOBJ("./Giraffe.obj");
+	loadOBJ("./cube.obj");
 
 	Generate2DShape(zmax);
 

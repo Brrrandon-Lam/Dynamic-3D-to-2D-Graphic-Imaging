@@ -70,7 +70,8 @@ GLfloat* loadOBJ(const char* path)
         }
     }
 
-    size_t arrayLen = temp_vertices.size();
+    size_t arrayLen = temp_vertices.size() * 11;
+    printf("ARRAY SIZES: %d %d %d\n", temp_vertices.size(), temp_normals.size(), temp_uvs.size());
     GLfloat* toReturnInfo = new GLfloat [arrayLen];
     int spotInVertex = 0;
     for (size_t i = 0; i < arrayLen; i += 11)
@@ -108,6 +109,7 @@ GLfloat* loadOBJ(const char* path)
             toReturnInfo[i + 9],
             toReturnInfo[i + 10]
         );
+        printf("arrayLen: %d \n", arrayLen -= 11);
     }
 
     return toReturnInfo;
