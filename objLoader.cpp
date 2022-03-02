@@ -90,14 +90,31 @@ GLfloat* loadOBJ(const char* path)
         toReturnInfo[i + 4] = 1.f;
         toReturnInfo[i + 5] = 1.f;
 
-        toReturnInfo[i + 6] = temp_uvs.at(spotInTex).s;
-        toReturnInfo[i + 7] = temp_uvs.at(spotInTex).t;
+        if (spotInTex >= temp_uvs.size()) {
+            toReturnInfo[i + 6] = 0;
+            toReturnInfo[i + 7] = 0;
+        }
+        else {
+            toReturnInfo[i + 6] = temp_uvs.at(spotInTex).s;
+            toReturnInfo[i + 7] = temp_uvs.at(spotInTex).t;
 
-        toReturnInfo[i + 8] = temp_normals.at(spotInNormals).x;
-        toReturnInfo[i + 9] = temp_normals.at(spotInNormals).y;
-        toReturnInfo[i + 10] = temp_normals.at(spotInNormals).z;
+        }
+
+        if (spotInNormals >= temp_normals.size()) {
+            toReturnInfo[i + 8] = 0;
+            toReturnInfo[i + 9] = 0;
+            toReturnInfo[i + 10] = 0;
+        }
+        else {
+            toReturnInfo[i + 8] = temp_normals.at(spotInNormals).x;
+            toReturnInfo[i + 9] = temp_normals.at(spotInNormals).y;
+            toReturnInfo[i + 10] = temp_normals.at(spotInNormals).z;
+        }
+        
 
         spotInVertex++;
+        spotInNormals++;
+        spotInTex++;
         fprintf(stderr, "%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n",
             i,
             toReturnInfo[i],
@@ -115,7 +132,7 @@ GLfloat* loadOBJ(const char* path)
             toReturnInfo[i + 9],
             toReturnInfo[i + 10]
         );
-        printf("arrayLen: %d \n", arrayLen - (i));
+        printf("arrayLen: %d \n", arrayLen - (i));//*/
     }
 
     return toReturnInfo;
