@@ -13,6 +13,7 @@
 #include"VBO.h"
 #include"EBO.h"
 #include"Camera.h"
+#include"objLoader.hpp"
 
 //Function Declaration
 //These function take in an array and return a specific value from the vertex data
@@ -149,11 +150,11 @@ int main()
 	//Each of these functions takes in a list of vertices, the size of the list of vertices, and the size of an independent vertex.
 	
 
-	//TransformPosX("+x", true, vertices, verticesSize, vertexDataSize);
+	TransformPosX("+x", true, vertices, verticesSize, vertexDataSize);
 	//TransformPosY("+y", true, vertices, verticesSize, vertexDataSize);
 	//TransformPosZ("+z", true, vertices, verticesSize, vertexDataSize);
 
-	TransformNegX("-x", true, vertices, verticesSize, vertexDataSize);
+	//TransformNegX("-x", true, vertices, verticesSize, vertexDataSize);
 	//TransformNegY("-y", false, vertices, verticesSize, vertexDataSize);
 	//TransformNegZ("-z", true, vertices, verticesSize, vertexDataSize);
 
@@ -175,6 +176,7 @@ int main()
 	GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
 	std::cout << zmin << " is the minimum Z value in the data \n\n\n"; // DEBUGGING LINE
 
+	loadOBJ("./Giraffe.obj");
 
 	//Allocate space for an array
 	GLfloat vertices_2d_array[55];
