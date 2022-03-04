@@ -176,7 +176,26 @@ int main()
 	GLfloat zmin = MinZ(vertices, verticesSize, vertexDataSize);
 	std::cout << zmin << " is the minimum Z value in the data \n\n\n"; // DEBUGGING LINE
 
-	loadOBJ("./Giraffe.obj");
+	struct InfoOBJ getInfoTest = loadOBJ("./mjbcube.obj");
+	GLfloat* testLoad = getInfoTest.list;
+	GLuint* INDICIES_TEST = new GLuint[getInfoTest.size];
+
+	VAO VAO_TEST;
+	VAO_TEST.Bind();
+
+	VBO VBO_TEST(testLoad, sizeof(testLoad));
+
+	EBO EBO_TEST(INDICIES_TEST, sizeof(INDICIES_TEST));
+	std::cout << "Created VAO_TEST with " << sizeof(testLoad) * getInfoTest.size << " vertices and " << sizeof(INDICIES_TEST) * getInfoTest.size << " indices." << std::endl;
+
+	VAO_TEST.LinkAttrib(VBO_TEST, 0, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)0); //This links the coordinates
+	VAO_TEST.LinkAttrib(VBO_TEST, 1, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
+	VAO_TEST.LinkAttrib(VBO_TEST, 2, 2, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
+	VAO_TEST.LinkAttrib(VBO_TEST, 3, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+
+	VAO_TEST.Unbind();
+	VBO_TEST.Unbind();
+	EBO_TEST.Unbind();
 
 	//Allocate space for an array
 	GLfloat vertices_2d_array[55];
@@ -258,11 +277,17 @@ int main()
 	glm::mat4 pyramidModel = glm::mat4(1.0f);
 	pyramidModel = glm::translate(pyramidModel, pyramidPos);
 
+	glm::vec3 testPos = glm::vec3(5.0f, 5.0f, 5.0f);
+	glm::mat4 testModel = glm::mat4(1.0f);
+	testModel = glm::translate(testModel, testPos);
+
 	lightShader.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model_test"), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	shaderProgram.Activate();
 	
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model_test"), 1, GL_FALSE, glm::value_ptr(testModel));
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
@@ -294,7 +319,6 @@ int main()
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
-
 		// Tells OpenGL which Shader Program we want to use
 		shaderProgram.Activate();
 		// Exports the camera Position to the Fragment Shader for specular lighting
@@ -313,6 +337,9 @@ int main()
 			// Draw primitives, number of indices, datatype of indices, index of indices
 			glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		}
+
+		VAO_TEST.Bind();
+		glDrawElements(GL_TRIANGLES, sizeof(INDICIES_TEST) / sizeof(int), GL_UNSIGNED_INT, 0);
 
 		// Tells OpenGL which Shader Program we want to use
 		lightShader.Activate();
@@ -337,6 +364,9 @@ int main()
 	VAO2.Delete();
 	VBO2.Delete();
 	EBO2.Delete();
+	VBO_TEST.Delete();
+	VAO_TEST.Delete();
+	EBO_TEST.Delete();
 	zosukeTex.Delete();
 	shaderProgram.Delete();
 	lightVAO.Delete();

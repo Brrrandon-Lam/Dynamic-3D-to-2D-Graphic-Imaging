@@ -6,12 +6,15 @@ std::vector< glm::vec3 > temp_vertices;
 std::vector< glm::vec2 > temp_uvs;
 std::vector< glm::vec3 > temp_normals;
 
-GLfloat* loadOBJ(const char* path)
+InfoOBJ loadOBJ(const char* path)
 {
     FILE* file = fopen(path, "r");
     if (file == NULL) {
         printf("Impossible to open the file !\n");
-        return NULL;
+        struct InfoOBJ returnMe;
+        returnMe.list = NULL;
+        returnMe.size = 0;
+        return returnMe;
     }
 
     while (1) {
@@ -115,7 +118,7 @@ GLfloat* loadOBJ(const char* path)
         spotInVertex++;
         spotInNormals++;
         spotInTex++;
-        fprintf(stderr, "%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n",
+        /*fprintf(stderr, "%d check obj: %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n",
             i,
             toReturnInfo[i],
             toReturnInfo[i + 1],
@@ -135,5 +138,9 @@ GLfloat* loadOBJ(const char* path)
         printf("arrayLen: %d \n", arrayLen - (i));//*/
     }
 
-    return toReturnInfo;
+    struct InfoOBJ returnMe;
+    returnMe.list = toReturnInfo;
+    returnMe.size = arrayLen;
+
+    return returnMe;
 }

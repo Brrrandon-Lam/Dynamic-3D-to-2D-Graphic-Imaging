@@ -5,7 +5,12 @@
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
-GLfloat* loadOBJ(
+struct InfoOBJ {
+    GLfloat* list;
+    int size;
+};
+
+struct InfoOBJ loadOBJ(
     const char* path
     //std::vector < glm::vec3 >& out_vertices,
     //std::vector < glm::vec2 >& out_uvs,
