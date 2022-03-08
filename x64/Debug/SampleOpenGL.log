@@ -1,1 +1,9 @@
-﻿  SampleOpenGL.vcxproj -> D:\CS 461 Project\Test-OpenGL\x64\Debug\SampleOpenGL.exe
+﻿  Main.cpp
+D:\CS 461 Project\Test-OpenGL\Main.cpp(190,54): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\CS 461 Project\Test-OpenGL\Main.cpp(496,33): warning C4244: '=': conversion from 'size_t' to 'GLfloat', possible loss of data
+D:\CS 461 Project\Test-OpenGL\Main.cpp(575,38): warning C4244: '=': conversion from 'int' to 'GLfloat', possible loss of data
+D:\CS 461 Project\Test-OpenGL\Main.cpp(658,33): warning C4244: '=': conversion from 'size_t' to 'GLfloat', possible loss of data
+D:\CS 461 Project\Test-OpenGL\Main.cpp(742,33): warning C4244: '=': conversion from 'size_t' to 'GLfloat', possible loss of data
+D:\CS 461 Project\Test-OpenGL\Main.cpp(817,38): warning C4244: '=': conversion from 'int' to 'GLfloat', possible loss of data
+D:\CS 461 Project\Test-OpenGL\Main.cpp(897,33): warning C4244: '=': conversion from 'size_t' to 'GLfloat', possible loss of data
+  SampleOpenGL.vcxproj -> D:\CS 461 Project\Test-OpenGL\x64\Debug\SampleOpenGL.exe
