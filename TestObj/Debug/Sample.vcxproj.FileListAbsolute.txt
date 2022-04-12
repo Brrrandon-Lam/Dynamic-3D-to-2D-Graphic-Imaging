@@ -1,0 +1,2 @@
+C:\MJB\CS550\SampleFreeGlut2019\Debug\Sample.exe
+C:\Users\Mr1Vgy\Documents\For School\CS463\TestObj\Debug\Sample.exe

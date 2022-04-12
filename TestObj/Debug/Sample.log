@@ -1,0 +1,5 @@
+﻿  sample.cpp
+C:\Users\Mr1Vgy\Documents\For School\CS463\TestObj\objLoader.cpp(109,23): warning C4018: '>=': signed/unsigned mismatch
+C:\Users\Mr1Vgy\Documents\For School\CS463\TestObj\objLoader.cpp(119,27): warning C4018: '>=': signed/unsigned mismatch
+sample.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
+  Sample.vcxproj -> C:\Users\Mr1Vgy\Documents\For School\CS463\TestObj\Debug\Sample.exe
