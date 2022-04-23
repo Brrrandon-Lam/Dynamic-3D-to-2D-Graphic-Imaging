@@ -6,6 +6,9 @@
 #include<glm/gtc/matrix_transform.hpp>
 #include<glm/gtc/type_ptr.hpp>
 #include <vector>
+#include<fast_obj/fast_obj.h>
+#include<algorithm>
+#include <vector>
 
 #include"Texture.h"
 #include"shaderClass.h"
@@ -13,21 +16,50 @@
 #include"VBO.h"
 #include"EBO.h"
 #include"Camera.h"
+#include <tuple>
+
+
+
+std::tuple<GLfloat, GLfloat, GLfloat> vcoord(float x, float y, float z)
+{
+	return std::make_tuple(x, y, z);
+
+}
+
+std::tuple<GLuint, GLuint> vtex(float u, float v)
+{
+
+	return std::make_tuple(u, v);
+
+}
+
+
+std::tuple<GLfloat, GLfloat, GLfloat> vnorm(float x, float y, float z)
+{
+	return std::make_tuple(x, y, z);
+
+}
+
+
+/*Taken from fast_obj.h*/
+#define array_size(_arr)        ((_arr) ? _array_size(_arr) : 0)
+#define _array_header(_arr)     ((fastObjUInt*)(_arr)-2)
+#define _array_size(_arr)       (_array_header(_arr)[0])
 
 //Function Declaration
 //These function take in an array and return a specific value from the vertex data
-GLfloat MinX(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the minimum X value from vertex data 
+GLfloat MinX(GLfloat vertexData[], int verticesSize, int numComponents); //Return the minimum X value from vertex data 
 GLfloat MinY(GLfloat vertexData[], size_t verticesSize, int numComponents); //return the minimum Y value from vertex data
 GLfloat MinZ(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the minimum Z value from vertex data
 
-GLfloat MaxX(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the maximum X value from the vertex data
+GLfloat MaxX(GLfloat vertexData[], int verticesSize, int numComponents); //Return the maximum X value from the vertex data
 GLfloat MaxY(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the maximum Y value from the vertex data
 GLfloat MaxZ(GLfloat vertexData[], size_t verticesSize, int numComponents); //Return the maximum Z value from the vertex data
 
 bool draw_3d = true;
 bool axis_align = true; //If you want to axis align the new set of vertices.
 
-void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
+void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], int verticesSize, int numComponents);
 void TransformPosY(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
 void TransformPosZ(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
 
@@ -36,13 +68,15 @@ void TransformNegY(std::string axis, bool axis_align, GLfloat vertexData[], size
 void TransformNegZ(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents);
 
 
-
 const unsigned int width = 1600;
 const unsigned int height = 900;
-const unsigned int vertexDataSize = 11;
+int vertexDataSize;
 
+/*Initialize arrays for object data*/
+GLfloat* vertices;
+GLuint* indices;
 
-
+/*
 // Vertices coordinates
 GLfloat vertices[] =
 { //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
@@ -67,10 +101,12 @@ GLfloat vertices[] =
 	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
 	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
 };
+*/
 
 //create a dynamic container for our 2d representation.
 std::vector<GLfloat> vertices_2d;
 
+/*
 // Indices for vertices order
 GLuint indices[] =
 {
@@ -81,6 +117,7 @@ GLuint indices[] =
 	10, 12, 11, // Right side
 	13, 15, 14 // Facing side
 };
+*/
 
 GLfloat lightVertices[] =
 { //     COORDINATES     //
@@ -144,10 +181,85 @@ int main()
 
 	//Find the greatest or smallest value in the list of vertices.
 
-	size_t verticesSize = sizeof(vertices) / sizeof(vertices[0]); //Calculates the size of the vertex data
+
+	/*Create fast obj struct*/
+	fastObjMesh* mesh = fast_obj_read("teapot.obj");
+	
+	/*Get the amount of coordinates*/
+	vertexDataSize = mesh->position_count;
+
+	/*Get a vector of indices*/
+	std::vector<GLuint> tempIndices;
+
+	/*Get a vector of Vertices, calculates needed size*/
+	std::vector<GLfloat> tempVertices(mesh->positions, mesh->positions + mesh->position_count);
+
+
+	/*Fill our new thing initiall with things with stuff*/
+	std::vector<Vertex> ALL_VERTICES;
+
+	/*
+	/*Reserve enough space..*/
+	int totalsize = ((array_size(mesh->positions)) / 3) + ((array_size(mesh->texcoords)) / 2) + ((array_size(mesh->normals) / 3));
+	ALL_VERTICES.reserve(totalsize);
+	
+
+	for (int i = 0; i < array_size(mesh->positions); i++)
+	{
+		printf("pos: %f\n", mesh->positions[i]);
+		tempVertices.push_back((GLfloat)mesh->positions[i]);
+
+	}
+
+	for (int i = 0; i < array_size(mesh->indices); i++)
+	{/*Convert obj data to vector*/
+
+		tempIndices.push_back((GLuint)mesh->indices[i].p);
+		tempIndices.push_back((GLuint)mesh->indices[i].t);
+		tempIndices.push_back((GLuint)mesh->indices[i].n);
+
+	}
+
+
+	std::vector<GLfloat> container_of_all_vertice_data;
+
+	/*
+
+	for (int i = 0; i < totalsize; i++)
+	{
+		Vertex new_vertex = { 0 };
+
+
+		new_vertex.x = mesh->positions[i];
+		new_vertex.y = mesh->positions[i+1];
+		new_vertex.z = mesh->positions[i+2];
+
+		//new_vertex.u = mesh->texcoords[i];
+		//new_vertex.v = mesh->texcoords[i + 1];
+
+		//new_vertex.nx = mesh->normals[i];
+		//new_vertex.ny = mesh->normals[i + 1];
+		//new_vertex.nz = mesh->normals[i + 2];
+
+
+		ALL_VERTICES.push_back(new_vertex);
+		
+
+		printf("Verts: %f, %f, %f \n", new_vertex.x, new_vertex.y, new_vertex.z);
+
+	}
+	*/
+
+	indices = tempIndices.data();
+	vertices = tempVertices.data();
+
+
+	int verticesSize = array_size(mesh->positions); //Calculates the size of the vertex data
+	int indicesSize = array_size(mesh->indices);
+	printf("%d\n", verticesSize);
+	printf("%d\n", totalsize);
 
 	//Each of these functions takes in a list of vertices, the size of the list of vertices, and the size of an independent vertex.
-	
 
 	TransformPosX("+x", true, vertices, verticesSize, vertexDataSize);
 	//TransformPosY("+y", true, vertices, verticesSize, vertexDataSize);
@@ -176,22 +288,21 @@ int main()
 	//std::cout << zmin << " is the minimum Z value in the data \n\n\n"; // DEBUGGING LINE
 
 
-	//Allocate space for an array
-	GLfloat vertices_2d_array[55];
-	GLuint indices_2d[6];
-	
-	//copy contents over
-	
-	for(int i = 0; i < vertices_2d.size(); i++) {
-		vertices_2d_array[i] = vertices_2d[i];
-	}
 
-	//generate inorder indices.
-	int numIndices = vertices_2d.size() / vertexDataSize;
-	//GLuint* indices_2d = new GLuint[numIndices];
-	for (int i = 0; i < numIndices; ++i) {
-		indices_2d[i] = i;
-	}
+	//Allocate space for an array
+	GLfloat* vertices_2d_array;
+	GLuint* indices_2d;
+	GLfloat* what_in_the_world;
+
+	//Copy contents over
+	//std::copy(vertices_2d.begin(), vertices_2d.end(), &vertices_2d_array);
+	//std::copy(tempIndices.begin(), tempIndices.end(), &indices_2d);
+
+
+	vertices_2d_array = vertices_2d.data();
+	indices_2d = tempIndices.data();
+	what_in_the_world = container_of_all_vertice_data.data();
+
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
@@ -199,16 +310,17 @@ int main()
 	VAO VAO1;
 	VAO1.Bind();
 	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO1(vertices, sizeof(vertices));
+	VBO VBO1(vertices, sizeof(&vertices[0]));
+
 	// Generates Element Buffer Object and links it to indices
-	EBO EBO1(indices, sizeof(indices));
-	std::cout << "Created VAO with " << sizeof(vertices) << " vertices and " << sizeof(indices) << " indices." << std::endl;
+	EBO EBO1(indices, sizeof(&tempIndices[0]));
+	std::cout << "Created VAO with " << array_size(mesh->positions) << " vertices and " << indicesSize << " indices." << std::endl;
 	
 	// Links VBO attributes such as coordinates and colors to VAO
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)0); //This links the coordinates
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
-	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, sizeof(vertices), (void*)0); //This links the coordinates
+	//VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, ALL_VERTICES.size(), (void*)(3 * sizeof(float))); //This links the colors
+	//VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, ALL_VERTICES.size(), (void*)(6 * sizeof(float))); //This links texture coordinates
+	//VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, ALL_VERTICES.size(), (void*)(8 * sizeof(float))); // This links normals.
 
 	// Unbind all to prevent accidentally modifying them
 	VAO1.Unbind();
@@ -220,10 +332,10 @@ int main()
 	VBO VBO2(vertices_2d_array, sizeof(vertices_2d_array));
 	EBO EBO2(indices_2d, sizeof(indices_2d));
 	
-	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)0); //This links the coordinates
-	VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(3 * sizeof(float))); //This links the colors
-	VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(6 * sizeof(float))); //This links texture coordinates
-	VAO2.LinkAttrib(VBO2, 3, 3, GL_FLOAT, vertexDataSize * sizeof(float), (void*)(8 * sizeof(float))); // This links normals.
+	VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, vertexDataSize, (void*)0); //This links the coordinates
+	//VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, vertexDataSize , (void*)(3 * sizeof(float))); //This links the colors
+	//VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, vertexDataSize , (void*)(6 * sizeof(float))); //This links texture coordinates
+	//VAO2.LinkAttrib(VBO2, 3, 3, GL_FLOAT, vertexDataSize , (void*)(8 * sizeof(float))); // This links normals.
 
 	VAO2.Unbind();
 	VBO2.Unbind();
@@ -244,7 +356,6 @@ int main()
 	lightVAO.Unbind();
 	lightVBO.Unbind();
 	lightEBO.Unbind();
-
 
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -304,12 +415,12 @@ int main()
 		// Bind the VAO so OpenGL knows to use it
 		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
 			VAO2.Bind(); 	
-			glDrawElements(GL_TRIANGLES, sizeof(indices_2d) / sizeof(int), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, sizeof tempIndices, GL_UNSIGNED_INT, 0);
 		}
 		else {
 			VAO1.Bind();
 			// Draw primitives, number of indices, datatype of indices, index of indices
-			glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, sizeof tempIndices, GL_UNSIGNED_INT, 0);
 		}
 
 		// Tells OpenGL which Shader Program we want to use
@@ -386,11 +497,11 @@ GLfloat MaxY(GLfloat vertexData[], size_t verticesSize, int numComponents)
 	return ymax;
 }
 
-GLfloat MaxX(GLfloat vertexData[], size_t verticesSize, int numComponents)
+GLfloat MaxX(GLfloat vertexData[], int verticesSize, int numComponents)
 {
-	size_t counter = 0;
+	int counter = 0;
 	GLfloat xmax = -1000.f;
-	for (size_t x = 0; x < verticesSize; x++) {
+	for (int x = 0; x < verticesSize; x++) {
 		if (counter == 0) {
 			if (((float)xmax < (float)vertexData[x])) { //If we are at the z coordinate then compare against largest.
 				xmax = vertexData[x];
@@ -872,24 +983,20 @@ void TransformNegX(std::string axis, bool axis_align, GLfloat vertexData[], size
 	}
 }
 
-void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size_t verticesSize, int numComponents)
+
+void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], int verticesSize, int numComponents)
 {
 	GLfloat currentVertexCoordinates[4] = {};
 	std::vector<GLfloat> vertices_mutable{};
 	std::cout << "SIZEOF VERTEXDATA IS " << verticesSize << std::endl; //DEBUG LINE
 	//create a vector that we can modify to not destroy the 3D object.
-	for (size_t i = 0; i < verticesSize; ++i) {
+	for (int i = 0; i < verticesSize; i++) {
 		vertices_mutable.push_back(vertexData[i]);
-		if (i % numComponents == 0 && i != 0) {
-			std::cout << std::endl;
-		}
-		std::cout << vertices_mutable[i] << " ";
-		
 	}
 	int counter = 0;
 	//maintains a list of rows to erase.
 	//go up to the coordinates before the last.
-	for (size_t i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
+	for (int i = 0; i < vertices_mutable.size(); i += numComponents) { //iterate through our vector and grab the vertex coordinates.
 		//TODO: convert to struct (3 floats + int)
 		currentVertexCoordinates[0] = vertices_mutable[i]; //store x
 		currentVertexCoordinates[1] = vertices_mutable[i+1]; //store y
@@ -899,14 +1006,14 @@ void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size
 		std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << "\n" << std::endl; //Debug Line
 
 		std::cout << " -- CURRENT VERTEX DATA -- " << std::endl;
-		for (size_t x = 0; x < vertices_mutable.size(); ++x) {
+		for (int x = 0; x < vertices_mutable.size(); ++x) {
 			if (x % numComponents == 0 && x != 0) {
 				std::cout << std::endl;
 			}
 			std::cout << vertices_mutable[x] << " ";
 		}
 		std::cout << std::endl;
-		for (size_t j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
+		for (int j = 0; j < vertices_mutable.size(); j += numComponents) { //iterate through our vector
 			//If we find an overlapping y and z, and find that the positions in the vertex array are not the same, compare for removal.
 			std::cout << "Current: " << currentVertexCoordinates[0] << " " << currentVertexCoordinates[1] << " " << currentVertexCoordinates[2] << " with position " << currentVertexCoordinates[3] << std::endl; //Debug Line
 			std::cout << "Comparison: " << vertices_mutable[j] << " " << vertices_mutable[j + 1] << " " << vertices_mutable[j + 2] << " with position " << j << std::endl; //Debug Line
@@ -920,7 +1027,7 @@ void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size
 					//erase elements j thru j + 10
 					vertices_mutable.erase(vertices_mutable.begin() + j, vertices_mutable.begin() + j + numComponents);
 					//if we erase a point behind the current position, we need to update the location of the current position
-					if (j < (size_t)currentVertexCoordinates[3]) {
+					if (j < (int)currentVertexCoordinates[3]) {
 						std::cout << "Old coordinates are " << currentVertexCoordinates[3] << std::endl;
 						currentVertexCoordinates[3] -= numComponents;
 						std::cout << "New coordinates are: " << currentVertexCoordinates[3] << std::endl;
@@ -944,8 +1051,8 @@ void TransformPosX(std::string axis, bool axis_align, GLfloat vertexData[], size
 		std::cout << "FINISHED OUTER LOOP" << std::endl;
 	}
 	//If we want to axis align
-	size_t counter3 = 0;
-	size_t iterationCounter = 0;
+	int counter3 = 0;
+	int iterationCounter = 0;
 	if (axis_align == true) {
 		GLfloat xmax = MaxX(vertices, verticesSize, vertexDataSize);
 		for (auto x : vertices_mutable) {
